@@ -1,4 +1,4 @@
-﻿#include "pch_script.h"
+#include "pch_script.h"
 #include "Actor_Flags.h"
 #include "hudmanager.h"
 #ifdef DEBUG
@@ -94,6 +94,7 @@
 #include "WeaponStatMgun.h"
 #endif
 
+BOOL showActorBody = FALSE;
 const u32 patch_frames = 50;
 const float respawn_delay = 1.f;
 const float respawn_auto = 7.f;
@@ -2134,8 +2135,11 @@ void CActor::renderable_Render()
 	{
 		if (::Render->active_phase() == 0) // can render first person body here
 		{
-			//if (fpBody) 
-			//	inherited::renderable_Render();
+            if (showActorBody)
+            {
+                inherited::renderable_Render();
+                CInventoryOwner::renderable_Render();
+            }
 		}
 		else if (AllowActorShadow()) // render actor shadow
 		{

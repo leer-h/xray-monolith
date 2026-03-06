@@ -174,6 +174,8 @@ extern BOOL alifeObjectHangingLampIgnoreMatchConfiguration;
 extern BOOL spawn_antifreeze;
 extern BOOL spawn_antifreeze_debug;
 
+extern BOOL showActorBody;
+
 extern float IK_CALC_DIST;
 extern float IK_CALC_SSA;
 extern float IK_ALWAYS_CALC_DIST;
@@ -3045,4 +3047,6 @@ void CCC_RegisterCommands()
 	// Wallmark distances
 	CMD4(CCC_Float, "g_wallmark_range_static", &wallmark_range_static, 0.f, 1000.f);
 	CMD4(CCC_Float, "g_wallmark_range_skeleton", &wallmark_range_skeleton, 0.f, 1000.f);
+
+    CMD4(CCC_Integer, "show_actor_body", &showActorBody, 0, 1);
 }
