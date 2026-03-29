@@ -237,6 +237,47 @@ How to compile exes:
 13. A short video demonstration of the entire process: https://youtu.be/MmZwyM2QO38
 
 ## Changelog
+**2026.03.29**
+
+* Main and MT:
+  * Optimization of `CEnemyManager::useful`:
+    * Add short live caching of Lua call results, prevents expensive lua calls each frame esp. in GAMMA
+    * Jitter cache time based on `entity_alive->ID` so that the updates will be spread out between frames
+    * Big performance gain in firefights vs NPCs, up to 100% in GAMMA
+    * `g_enemy_manager_useful_cache_time` to control the cache expiration time. Default is 250ms. -1 will disable caching
+    
+    ![image](http://puu.sh/KKJxE/a4770b7660.jpg)
+
+  * Legs: 
+    * Fixed rendering attached items shadows such as headlight
+    * `g_legs_render_attachments_shadow` to toggle rendering attached items shadows, default enabled 
+  * Fixed Out Of Memory error due to abnormal size of underbarrel ammo in net packet
+  * `alife():object_count()` function to return current alife count
+  * Lua changes:
+    * `_g_patches`:
+      * Patch `pairs` and `ipairs` to use methods from metatables if they are defined (Lua 5.2 functionality)
+      * Simpler `empty_table` and `iempty_table`
+      * `get_object_by_id` uses `gameobjects_registry`, more reliable than `db.storage`
+      * `alife_object` uses `server_objects_registry`, less calls to engine unless necessary
+      * `fis_zero` and `fsimilar` functions
+      * `MinHeap` return self reference whenever possible
+      * simple `OrderedTable` class
+      * `_G` metatable newindex change to prevent shadowing const table
+    * `callbacks_gameobject`:
+      * `server_objects_registry` table contains all alife server objects for fast lookup without engine call
+    * `item_weapon`:
+      * A little more optimized ammo aggregation algorithm
+  * erepb: expose CALifeSimulator::update_scheduled to lua as force_update (https://github.com/themrdemonized/xray-monolith/pull/493)
+  * Verdatim25: Add a new method to CWeapon to allow for force changing zoom type (https://github.com/themrdemonized/xray-monolith/pull/495)
+
+MT:
+  * Fixed crash when using `log_timestamps`, fixes https://github.com/themrdemonized/xray-monolith/issues/485
+  * Fixed "Out of memory" error in `feel_vision.h` in `feel_vision_get` method
+  * Disabled multithreaded HOM, fixes artifacts near screen borders
+  * Fixed potential nullptr crash in `CMemoryManager::make_object_visible_somewhen`
+  * Fixed potential game lockup due to invalid coordinates for IK calculation
+  * Wallmarks: Increase MAX_TRIS from 16384 to 32768
+
 **2026.03.22**
 
 Main and MT:

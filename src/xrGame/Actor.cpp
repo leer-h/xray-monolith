@@ -2136,14 +2136,20 @@ bool CActor::AllowActorShadow()
 extern xr_unordered_set<CDemoRecord*> pDemoRecords;
 BOOL legs_in_demo_record = FALSE;
 BOOL legs_in_low_crouch = FALSE;
+BOOL legs_render_attachments_shadow = TRUE;
 extern BOOL g_legs_enabled;
 void CActor::renderable_Render()
 {
 	VERIFY(_valid(XFORM()));
 
-    static auto canRenderLegs = [](CActor* actor, CHolderCustom* m_holder)
+    static auto canRenderLegs = [](CActor* actor, CHolderCustom* m_holder) noexcept
     {
-        return g_legs_enabled && (legs_in_low_crouch || !(actor->mstate_real & mcCrouch && actor->mstate_real & mcAccel)) && g_player_hud && !m_holder && (legs_in_demo_record || pDemoRecords.empty()) && showActorBody == 0;
+        return g_legs_enabled
+            && (legs_in_low_crouch || !(actor->mstate_real & mcCrouch && actor->mstate_real & mcAccel))
+            && g_player_hud
+            && !m_holder
+            && (legs_in_demo_record || pDemoRecords.empty())
+            && showActorBody == 0;
     };
 
 	if (cam_active == eacFirstEye)
@@ -2193,14 +2199,16 @@ void CActor::renderable_Render()
                 }
 
                 // Move torch
-                auto I = attachedItem(CLSID_DEVICE_TORCH);
-                if (I)
+                if (legs_render_attachments_shadow)
                 {
-                    auto& v = I->object();
-                    v.XFORM().c.mad(diff, m);
-                    v.renderable_Render();
+                    for (const auto& I : m_attached_objects)
+                    {
+                        auto& v = I->object();
+                        v.XFORM().c.mad(diff, m);
+                        v.renderable_Render();
+                    }
                 }
-
+                
                 // Move bolt
                 if (inventory().GetActiveSlot() == BOLT_SLOT)
                 {
